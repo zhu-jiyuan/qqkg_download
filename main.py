@@ -4,8 +4,12 @@ import httpx
 from tqdm.auto import tqdm
 import sys
 import re
+import os
 
 path = r'./music/'
+if not os.path.exists(path):
+    os.makedirs(path)
+
 
 async def download_music(client: httpx.AsyncClient, shareid: str, title: str):
     data_url = "http://cgi.kg.qq.com/fcgi-bin/fcg_get_play_url?shareid=" + str(shareid)
