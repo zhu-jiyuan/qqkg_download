@@ -62,12 +62,18 @@ async def main(uid):
      async with httpx.AsyncClient(follow_redirects=True) as client:
         ugclist = await get_music_url_list(client, uid)
         tasks = []
-        for ugc in ugclist:
+        for i in range(len(ugclist)):
+            ugc = ugclist[i]
             title = ugc["title"]
             shareid = ugc["shareid"]
             tasks.append(download_music(client, shareid, title))
+            if i%10 == 0:
+                await asyncio.gather(*tasks)
+                tasks = []
 
-        await asyncio.gather(*tasks)
+        if len(tasks) > 0:
+            await asyncio.gather(*tasks)
+
 
 
 def get_uid(url):
