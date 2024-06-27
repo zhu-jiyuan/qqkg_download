@@ -9,14 +9,20 @@
 # install
 pip install -r requirements.txt
 
-# run
+# python run
 python3 main.py "https://kg.qq.com/node/personal?uid=1243454"
+
+
+# go run
+
+go build
+./qqkg_download "https://kg.qq.com/node/personal?uid=1243454"
 
 ```
 
 ## TODO
 用不同语言实现
 
-- [ ] golang
+- [x] golang
 - [ ] lua
 
