@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/schollz/progressbar/v3"
 	"io"
 	"net/http"
 	"os"
@@ -16,25 +17,30 @@ const DOWNLOAD_DIR = "./downloads/"
 
 func downloadMusic(shareid string, title string, nickname string, wg *sync.WaitGroup) {
 	url := DOWNLOAD_URL + shareid
-	fileName := DOWNLOAD_DIR + title + "-" + nickname + ".m4a"
+	fileName := title + "-" + nickname + ".m4a"
+	filePath := DOWNLOAD_DIR + fileName
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("http.Get error: ", err)
 		return
 	}
 	defer resp.Body.Close()
-	content, err := io.ReadAll(resp.Body)
+
+	file_m4a, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
+	defer file_m4a.Close()
+
+	// content, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("ioutil.ReadAll error: ", err)
-		return
-	}
-	err = os.WriteFile(fileName, content, 0666)
-	if err != nil {
-		fmt.Println("os.WriteFile error: ", err)
+		fmt.Println("OpenFile error: ", err)
 		return
 	}
 
-	fmt.Println("Download finsh: ", title, " from ", nickname, "url: ", url)
+	bar := progressbar.DefaultBytes(
+		resp.ContentLength,
+		fileName,
+	)
+	io.Copy(io.MultiWriter(file_m4a, bar), resp.Body)
+
 	wg.Done()
 }
 
@@ -139,8 +145,8 @@ func main() {
 		os.Mkdir(DOWNLOAD_DIR, 0755)
 	}
 
-	ugcList, nickname, ugcTotalCount := getMusicList(uid, 1)
-	fmt.Println("nickname: ", nickname, "ugcList: ", len(ugcList), ugcTotalCount)
+	_, nickname, ugcTotalCount := getMusicList(uid, 1)
+	fmt.Println("nickname: ", nickname, "ugcList: ", ugcTotalCount)
 	var ugcChan chan Ugc = make(chan Ugc, ugcTotalCount)
 	go startAddUgc(uid, ugcChan, ugcTotalCount)
 

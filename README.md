@@ -15,6 +15,7 @@ python3 main.py "https://kg.qq.com/node/personal?uid=1243454"
 
 # go run
 
+go mod tidy
 go build
 ./qqkg_download "https://kg.qq.com/node/personal?uid=1243454"
 
