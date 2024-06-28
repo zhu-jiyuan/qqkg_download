@@ -25,5 +25,4 @@ go build
 用不同语言实现
 
 - [x] golang
-- [ ] lua
 
